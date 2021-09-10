@@ -2,5 +2,28 @@
 {% block head %}
 <h1>環境傳感器數據</h1>
 
+<table>
+<tr>
+	{% for column in column_names %}
+  <th>
+    {{ column }}
+    </th>
+  {% endfor %}
+</tr>
+
+
+<tr>
+	{% for line in latest_data %}
+  <td>
+    {{ line }}
+    </td>
+      {% endfor %}
+    </tr>
+    </br>
+
+
+
+  </table>
+</br>
 
 {% endblock %}

@@ -3,6 +3,8 @@ from time import sleep
 
 import json
 
+from mysql.connector.constants import ShutdownType
+
 # Define a method to create MySQL users
 def createUser(cursor, userName, password,
                querynum=0, 
@@ -109,10 +111,18 @@ class sql_writer:
         self.mycursor.execute("SELECT * FROM enviro_data ORDER BY id DESC LIMIT 1")
         myresult = self.mycursor.fetchall()
         
-        
-
         return myresult[0]
 
+    def show_column_names(self):
+        self.mycursor.execute("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'enviro_data' AND TABLE_NAME = 'enviro_data'")
+        myresult = self.mycursor.fetchall()
+
+        # returns a list of tuples, so convert to list of strings
+        column_names = []
+        for column in myresult:
+            column_names.append(column[0])
+
+        return column_names
         
     
 
@@ -135,6 +145,10 @@ if __name__ == "__main__":
     latest_data = sql_object.show_latest_data()
     for item in latest_data:
             print(item)
+            print("column names")
+    print(sql_object.show_column_names())
+    for line in sql_object.show_column_names():
+        print(line)
 
     #input()
     #sql_object.delete_database()
