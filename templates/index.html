@@ -2,8 +2,13 @@
 {% block head %}
 <h1>環境傳感器數據</h1>
 
+{{ about_app }}
+
 <table>
 <tr>
+    <th>
+    
+    </th>
 	{% for column in column_names %}
   <th>
     {{ column }}
@@ -13,17 +18,51 @@
 
 
 <tr>
-	{% for line in latest_data %}
-  <td>
-    {{ line }}
+	{% for rowheader, rowdata in rowheaders_and_data %}
+  <tr>
+      <td>{{ rowheader }}</td>
+      
+    {% for column in rowdata %}
+    <td>
+    {{ column }}
     </td>
+    {% endfor %}
+    </tr>
       {% endfor %}
     </tr>
-    </br>
 
 
 
   </table>
 </br>
+{{ msg }}
+<form method="POST">    
+    <div>
+        max <input type="radio" name="option" label = "max" value="MAX" />  
+        min <input type="radio" name="option" value="MIN" />           
+        average <input type="radio" name="option" value="AVG" />           
+        most recent <input type="radio" name="option" value="most recent" />           
+    </div>
+        <input type="submit" value="Submit">
+        
+        
+        
+</form>
+
+<form method="post">      
+         
+        <legend>Choose One</legend>      
+        <input type="checkbox" name="option" value="MAX">Max<br>   
+        <input type="checkbox" name="option" value="MIN">Min<br>      
+        <input type="checkbox" name="option" value="AVG">Avg<br> 
+        <input type="checkbox" name="option" value="most recent">Most Recent<br>
+        <input type="checkbox" name="option" value="all">All<br>
+              
+
+        <br>      
+        <input type="submit" value="Submit now" />      
+        
+</form>
+{{ msg }}
 
 {% endblock %}

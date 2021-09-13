@@ -1,0 +1,34 @@
+from wtforms import Form
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, FloatField, RadioField, SelectField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+
+#Create a class which inherits from FlaskForm.
+#Each form field are imported classes
+#Add another requirements, called validators, as arguments. DataRequired means can't be empty
+class Form(Form):
+
+    query_select = RadioField('SQL query', choices=['max', 'min', 'average', 'most recent'])
+
+    location = StringField('Locație', validators=[Length(min=2, max=20)])
+
+    action = StringField('Activitate', validators=[Length(min=2, max=20)])
+
+    interval = FloatField('Interval')
+
+    weather = StringField('Vreme', validators=[Length(min=2, max=20)])
+
+
+    submit = SubmitField('Sign Up')
+
+    source = RadioField('Flashcard source Language', choices=[('Chinese','Chinese'),('English', 'English')], default='Chinese')
+
+    templow_on = RadioField('Low temp', choices=[(True,'on'),(False, 'off')])
+    templow_value = FloatField('Value')
+
+    humidhigh_on = RadioField('High humidity', choices=[(True,'on'),(False, 'off')])
+    humidhigh_value = FloatField('Value')
+
+    submit = SubmitField('更新')
+
+
+    #warning = SelectField('Select Notification', choices=[('none', 'None'), ('hightemp', 'High Temp'), ('lowtemp', 'Low Temp'), ('lowlight', 'Low light')])

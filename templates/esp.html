@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<h1>環境傳感器數據</h1>
+<div class ="about">
+{{ instructions }}
+</div>
+<br>
+
+<form action="/esp" method="POST">
+
+  <button name="esp_controller" type="submit" value="buzz_on">Buzzer on</button>
+  <button name="esp_controller" type="submit" value="buzz_off">Buzzer off</button>
+
+</form>
+
+{% endblock %}
+
