@@ -1,22 +1,37 @@
+# -----------------------------------------------------------
+# Sends MQTT messages to esp to control led and buzzer
+# Receives sensor data from esp via MQTT
+# Returns a dictionary with light, humidity, temperature data
+# -----------------------------------------------------------
+
 import paho.mqtt.client as mqtt # Import the MQTT library
 
 import time # The time library is useful for delays
 
-myTopic = "esp32/buzz"
-MQTTbroker = "localhost"
+import json # Json library used to get config
 
 
-MQTT_ADDRESS = '192.168.1.15'
-MQTT_USER = 'alidore'
-MQTT_PASSWORD = 'mournes'
+
+# Get MQTT credentials from config file
+with open("/home/pi/python_scripts/flask_mysql/config.json", "r") as f:
+    config = json.load(f)
+    MQTTbroker = config["MQTT"]["MQTTbroker"]
+    MQTT_ADDRESS = config["MQTT"]["MQTT_ADDRESS"]
+    MQTT_USER = config["MQTT"]["MQTT_USER"]
+    MQTT_PASSWORD = config["MQTT"]["MQTT_PASSWORD"]
+
+
+# define topics to control esp buzzer and led
+topic_buzz = "esp32/buzz"
+topic_led = "esp32/output"
+# define esp sensor topics
 topic_light = 'esp32/light'
 topic_humidity = 'esp32/humidity'
 topic_temperature = 'esp32/temperature'
 
-
+#initialise dictionary to story mqtt topics
 data_dict = {}
 
-counter = 0
 
 def on_connect(client, userdata, flags, rc):
     """ The callback for when the client receives a CONNACK response from the server."""
@@ -27,84 +42,59 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     """The callback for when a PUBLISH message is received from the server."""
     print(msg.topic + ' ' + msg.payload.decode())
-    print(".")
     data_dict[msg.topic] = msg.payload
 
 
 def main():
+    # Connect to mqtt server
     mqtt_client = mqtt.Client()
     mqtt_client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
     mqtt_client.on_connect = on_connect
     mqtt_client.on_message = on_message
-
     mqtt_client.connect(MQTT_ADDRESS, 1883)
+
+    # Send mqtt message to esp to switch off buzzer at start
     mqtt_client.publish("esp32/buzz", "off")
 
     mqtt_client.loop_forever()
 
 
 def get_esp_data():
+    # Connect to mqtt server
     mqtt_client = mqtt.Client()
     mqtt_client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
     mqtt_client.on_connect = on_connect
     mqtt_client.on_message = on_message
-
     mqtt_client.connect(MQTT_ADDRESS, 1883)
+
+    # Send mqtt message to esp to switch off buzzer at start
     mqtt_client.publish("esp32/buzz", "off")
 
-    mqtt_client.loop_start()
+    mqtt_client.loop_start() #start loop
 
+    # Wait until light, humidity and temperature topics have been filled
     while len(data_dict) <3:
         continue
+
     mqtt_client.disconnect() #disconnect
     mqtt_client.loop_stop() #stop loop
     return data_dict
 
-
-def subscribe_and_publish():
-    mqtt_client = mqtt.Client()
-    mqtt_client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
-    mqtt_client.on_message=on_message
-    mqtt_client.connect(MQTT_ADDRESS, 1883)
-    mqtt_client.loop_start()
-    
-
-    counter = 0
-    while counter <= 3:
-        continue
-
-
-
-
-    mqtt_client.subscribe("esp32/light")   
-    time.sleep(2)
-    mqtt_client.publish("esp32/output", "on")
-    time.sleep(2)
-        
-    mqtt_client.disconnect() #disconnect
-    mqtt_client.loop_stop() #stop loop
-
 def control_esp(on_or_off):
+    # Connect to mqtt server
     mqtt_client = mqtt.Client()
     mqtt_client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
     mqtt_client.on_connect = on_connect
-    #mqtt_client.on_message = on_message
-
     mqtt_client.connect(MQTT_ADDRESS, 1883)
 
-    mqtt_client.loop_start()
+    mqtt_client.loop_start() # start loop
 
-    mqtt_client.publish("esp32/buzz", on_or_off)
-    mqtt_client.publish("esp32/output", on_or_off)
+    mqtt_client.publish(topic_buzz, on_or_off)
+    mqtt_client.publish(topic_led, on_or_off)
 
-
-
-    #while len(data_dict) <3:
-    #    continue
     mqtt_client.disconnect() #disconnect
     mqtt_client.loop_stop() #stop loop
 
 if __name__ == '__main__':
-    print('MQTT to InfluxDB bridge')
-    main()
-
+    #main()
+    get_esp_data()

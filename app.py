@@ -1,13 +1,20 @@
 from flask import Flask, render_template, request, url_for, redirect, session
 
+import json
+
 import sql_writer
 
 import mqtt_to_esp32
 
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'bc52317a7b4b0393e5974227d36cb3a6'
 
+
+app = Flask(__name__)
+
+# Get secret key which is needed to use sessions
+with open("/home/pi/python_scripts/flask_mysql/config.json", "r") as f:
+    config = json.load(f)
+    app.config['SECRET_KEY'] = config["FLASKAPP"]["SECRETKEY"]
 
 
 @app.route('/', methods=['GET', 'POST'])
