@@ -15,7 +15,7 @@ import sql_writer
 
 import mqtt_to_esp32
 
-
+from flask import flash
 
 
 app = Flask(__name__)
@@ -118,6 +118,69 @@ def about():
             mqtt_to_esp32.control_esp("off")
 
     return render_template('about.html', about_app=about_app)
+
+@app.route('/update_sensor', methods=['GET', 'POST'])
+def update_sensor():
+    from form import Form
+    form = Form(request.form)    
+
+    # get current alert configurations from json file
+    alerts_config_file = '/home/pi/python_scripts/enviroproject/alerts_config.json'
+    with open(alerts_config_file, 'r') as infile:
+        jdata = json.load(infile)
+
+    location = jdata['sensor']['location']
+    action = jdata['sensor']['action']
+    interval = jdata['sensor']['interval']
+    weather = jdata['sensor']['weather']
+    templow_on = jdata['notification']["templow"]["on"]
+    templow_value = jdata['notification']['templow']['value']
+    humidhigh_on = jdata['notification']["humidhigh"]["on"]
+    humidhigh_value = jdata['notification']['humidhigh']['value']
+
+    # If submit button was pressed, get values from form
+    if request.method == 'POST' and form.validate():
+        location = form.location.data
+        action = form.action.data
+        templow_on = form.templow_on.data
+        templow_value = form.templow_value.data
+        humidhigh_on = form.humidhigh_on.data
+        humidhigh_value = form.humidhigh_value.data
+        new_configs = {"sensor":{"location":location,"action":action,"interval":interval,"weather":weather}, "notification":{
+"templow":
+{"on":templow_on,
+"value":templow_value,
+"msg":""},
+"humidhigh":
+{"on":humidhigh_on,
+"value":humidhigh_value,
+"msg":""},
+#"lightlow":
+#{"on":"True",
+#"value":20,
+#"msg":""},
+'temphigh':jdata['notification']['temphigh'],
+'lightlow':jdata['notification']['lightlow']
+}
+}
+        # update configs file
+        with open(alerts_config_file, 'w') as outfile:
+            json.dump(new_configs, outfile, indent=4)
+        flash('設定更新了', 'success')
+        return redirect(url_for('update_sensor'))
+
+    # if submit button no pressed
+    elif request.method == 'GET':
+        # Get form values from json file
+        form.location.data = location
+        form.action.data = action
+        form.templow_on.data = templow_on
+        form.templow_value.data = templow_value
+        form.humidhigh_on.data = humidhigh_on
+        form.humidhigh_value.data = humidhigh_value
+
+    return render_template('update_sensor.html', location=location, action=action, templow_on=templow_on, templow_value=templow_value, humidhigh_on=humidhigh_on, humidhigh_value=humidhigh_value,form=form)
+
 
 
 def get_rowheaders_and_data(selectedSqlQueries):

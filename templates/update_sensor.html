@@ -1,0 +1,48 @@
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href='/static/style.css' />
+
+</head>
+<body>
+<h1>Update values for sending alerts</h1>
+
+{% for message in get_flashed_messages() %}
+
+        <p>{{ message }}</p>
+
+    {% endfor %}
+
+
+{% from "_formhelpers.html" import render_field %}
+
+<form method=post>
+
+  <dl>
+      {{ notification }}
+
+    {{ render_field(form.location) }}
+
+    {{ render_field(form.action) }}
+
+    通知:
+    {{ render_field(form.templow_on) }}
+    {{ render_field(form.templow_value) }}
+    {{ render_field(form.humidhigh_on) }}
+    {{ render_field(form.humidhigh_value) }}
+
+
+    {{ render_field(form.submit) }}
+
+  </dl>
+
+</form>
+
+
+<a href="/"><button>回家吧</button></a>
+
+</body>
+</html>
