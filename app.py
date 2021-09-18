@@ -45,9 +45,11 @@ def index():
         session['sql_data'].append(sql_object.show_min_max_av("AVG"))
 
 
-        if 'sql_query' not in session:
-            #if sql_query key doesn't exist, set to default value, ie., nothing has been selected, set to most recent
+        if 'buzzer' not in session:
+            #if buzzer key doesn't exist, set to default value, ie., no sessions keys exist
             session['sql_query']="most_recent"
+            session['buzzer']="off"
+            session['led']="off"
             
             print("Im never do this")
 
@@ -93,12 +95,21 @@ def esp():
         if request.form['esp_controller'] == 'buzz_on':
             # send MQTT message to esp to switch buzzer on
             mqtt_to_esp32.control_esp("on")
-            # send off button to template
-            button_html = '<button name="esp_controller" type="submit" value="buzz_off">Buzzer off</button>'
+            # update session key with current value
+            session['buzzer']= "on"
         elif request.form['esp_controller'] == 'buzz_off':
             mqtt_to_esp32.control_esp("off")
+            session['buzzer'] = "off"
             # send on button to template
-            button_html = '<button name="esp_controller" type="submit" value="buzz_on">Buzzer on</button>'
+
+    # initialize string with button html
+    button_html = ""
+    if session['buzzer']=="off":
+        # if buzzer is off, show on button
+        button_html+= '<button name="esp_controller" type="submit" value="buzz_on">Buzzer on</button>'
+    elif session['buzzer']=="on":
+        button_html+= '<button name="esp_controller" type="submit" value="buzz_off">Buzzer off</button>'
+        
     # markup html to send to template
     button_html = Markup(button_html)
     return render_template('esp.html', instructions=instructions, button_html=button_html)
