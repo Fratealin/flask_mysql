@@ -17,11 +17,6 @@ color: DarkOliveGreen;
   font-size: 20px;
 }
 
-.tango {
-  font-size: 40px;
-  color: white;
-}
-
 table {
     margin: 5px;
     border-collapse: collapse;
@@ -30,7 +25,8 @@ table {
 th, td, tr {
 padding: 10px;
 }
- button {
+ 
+button {
     padding: 5px 8px;
 
      font-size: 16px;
